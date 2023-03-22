@@ -1,0 +1,15 @@
+C:\Users\Donald\source\repos\project2\bin\Release\net6.0\project2.exe
+C:\Users\Donald\source\repos\project2\bin\Release\net6.0\project2.deps.json
+C:\Users\Donald\source\repos\project2\bin\Release\net6.0\project2.runtimeconfig.json
+C:\Users\Donald\source\repos\project2\bin\Release\net6.0\project2.dll
+C:\Users\Donald\source\repos\project2\bin\Release\net6.0\project2.pdb
+C:\Users\Donald\source\repos\project2\obj\Release\net6.0\project2.csproj.AssemblyReference.cache
+C:\Users\Donald\source\repos\project2\obj\Release\net6.0\project2.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Donald\source\repos\project2\obj\Release\net6.0\project2.AssemblyInfoInputs.cache
+C:\Users\Donald\source\repos\project2\obj\Release\net6.0\project2.AssemblyInfo.cs
+C:\Users\Donald\source\repos\project2\obj\Release\net6.0\project2.csproj.CoreCompileInputs.cache
+C:\Users\Donald\source\repos\project2\obj\Release\net6.0\project2.dll
+C:\Users\Donald\source\repos\project2\obj\Release\net6.0\refint\project2.dll
+C:\Users\Donald\source\repos\project2\obj\Release\net6.0\project2.pdb
+C:\Users\Donald\source\repos\project2\obj\Release\net6.0\project2.genruntimeconfig.cache
+C:\Users\Donald\source\repos\project2\obj\Release\net6.0\ref\project2.dll
