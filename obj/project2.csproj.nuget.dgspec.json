@@ -1,27 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Donald\\source\\repos\\project2\\project2.csproj": {}
+    "/Users/donny/COPADS/project2/project2.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Donald\\source\\repos\\project2\\project2.csproj": {
+    "/Users/donny/COPADS/project2/project2.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Donald\\source\\repos\\project2\\project2.csproj",
+        "projectUniqueName": "/Users/donny/COPADS/project2/project2.csproj",
         "projectName": "project2",
-        "projectPath": "C:\\Users\\Donald\\source\\repos\\project2\\project2.csproj",
-        "packagesPath": "C:\\Users\\Donald\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Donald\\source\\repos\\project2\\obj\\",
+        "projectPath": "/Users/donny/COPADS/project2/project2.csproj",
+        "packagesPath": "/Users/donny/.nuget/packages/",
+        "outputPath": "/Users/donny/COPADS/project2/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Donald\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/donny/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -55,7 +53,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.202\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.405/RuntimeIdentifierGraph.json"
         }
       }
     }
