@@ -78,12 +78,11 @@ namespace PrimeGen
                     PrimeNumberGenerator(count, bits);
                     watch.Stop();
                     TimeSpan elapsed = watch.Elapsed;
-                    Console.WriteLine("Time to Generate: {00:00:00.0000000}s", elapsed.TotalSeconds);
+                    Console.WriteLine("Time to Generate: {00:00:00:00.0000000}", elapsed.TotalSeconds);
                 }
                 else {
                     PrintHelp();
                 }
-
             } 
             else {
                 PrintHelp();
@@ -93,21 +92,28 @@ namespace PrimeGen
         public static void PrimeNumberGenerator(int amount, int bitsParam) {
             Parallel.For(0, amount, 
                         i => { BigInteger num = GenerateRandomNumber(bitsParam);
-                                      while (!CheckIfPrime(num)) { num = GenerateRandomNumber(bitsParam); }
+                                      while (!CheckIfPrime(num, bitsParam)) { num = GenerateRandomNumber(bitsParam); }
                                       Interlocked.Increment(ref primesGenerated);
-                                      Console.WriteLine("{0}: {1}", primesGenerated, num); //something causing primes out of order
+                                      Console.WriteLine("{0}: {1}\n", primesGenerated, num); //something causing primes out of order
                                     });
         }
 
-        public static Boolean CheckIfPrime(BigInteger number) {
-            Boolean isPrime = false;
-            if (number > 3 && number % 2 != 0) {
-                if (number.IsProbablyPrime()) {
-                    isPrime = true;
+        public static Boolean CheckIfPrime(BigInteger number, int numBits) {
+            if (numBits >= 1024) {
+                foreach (int prime in firstThousandPrimes) {
+                    if (number % prime == 0) {
+                        return false;
+                    }
                 }
             }
 
-            return isPrime;
+            if (number > 3 && number % 2 != 0) {
+                if (number.IsProbablyPrime()) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public static BigInteger GenerateRandomNumber(int bits) {
@@ -116,6 +122,7 @@ namespace PrimeGen
             RandomNumberGenerator rng = RandomNumberGenerator.Create();
             rng.GetBytes(byteArr);
             BigInteger generated = new BigInteger(byteArr, true, false);
+            rng.Dispose();
 
             return generated;
         }
@@ -124,12 +131,14 @@ namespace PrimeGen
             BigInteger d = value - 1;
             int r = 0;
             while (d % 2 == 0) {
-                d = d / 2;
+                d /= 2;
                 r++;
             }
+            Random rand = new Random();
 
             for (int i = 0; i < k; i++) {
-                BigInteger a = RandomNumberGenerator.GetInt32(2, (int) d); // need to figure out how to change BigInteger d to int32
+                BigInteger a = BigInteger.Remainder(new BigInteger(rand.Next()), value - 3) + 2;
+                if (a < 2) { a += 2; }
                 BigInteger x = BigInteger.ModPow(a, d, value);
                 if (x == 1 || x == value - 1) { continue; }
                 for (int j = 0; j < r - 1; j++) {
