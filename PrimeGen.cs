@@ -1,11 +1,23 @@
-﻿
+﻿// Donald Burke
+// Project 2
+// Prime Number Generator in C# Using Parallelism and the Miller-Rabin Primality Test
+
 using System.Diagnostics;
 using System.Numerics;
 using System.Security.Cryptography;
 
 namespace PrimeGen
 {
+    /// <summary>
+    /// Provides implementation for prime number generation.
+    /// </summary>
     static class PrimeGen {
+
+        /// <summary>
+        /// Used to speed up process of checking if a number is prime. If a number is divisible by any of these
+        /// primes, it is not a prime number.
+        /// </summary>
+        /// <value>The first 1000 prime numbers.</value>
         public static int[] firstThousandPrimes = new int[] {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 
         59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 
         181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 
@@ -58,9 +70,26 @@ namespace PrimeGen
         7547, 7549, 7559, 7561, 7573, 7577, 7583, 7589, 7591, 7603, 7607, 7621, 7639, 7643, 7649, 7669, 7673, 7681, 7687, 
         7691, 7699, 7703, 7717, 7723, 7727, 7741, 7753, 7757, 7759, 7789, 7793, 7817, 7823, 7829, 7841, 7853, 7867, 7873, 
         7877, 7879, 7883, 7901, 7907, 7919};
+        
+        /// <summary>
+        /// Integer value representing how many prime numbers have thus far been generated.
+        /// Used for numeration in output as well.
+        /// </summary>
         public static int primesGenerated = 0;
+
+        /// <summary>
+        /// Lock object used to lock console and primesGenerated to prevent primes printing out of order.
+        /// </summary>
+        static object lockObject = new Object();
+
+        /// <summary>
+        /// Main method that reads and handles input and intiates the prime number generator using given input.
+        /// Prints help message in the case of incorrect input.
+        /// </summary>
+        /// <param name="args">User input arguments.</param>
         public static void Main(string[] args)
         {
+            // Reading/parsing of input args that catches any formatting issues.
             if (args.Length >= 1) {
                 int bits = 0;
                 int count = 1;
@@ -70,7 +99,8 @@ namespace PrimeGen
                         count = int.Parse(args[1]);
                     }
                 } catch (FormatException) { }
-
+                
+                // Ensures bits are divisible by 8 and greater than 32.
                 if (bits % 8 == 0 && bits >= 32) {
                     Console.WriteLine("BitLength: {0} bits", bits);
                     Stopwatch watch = new Stopwatch();
@@ -80,25 +110,38 @@ namespace PrimeGen
                     TimeSpan elapsed = watch.Elapsed;
                     Console.WriteLine("Time to Generate: {00:00:00:00.0000000}", elapsed.TotalSeconds);
                 }
-                else {
-                    PrintHelp();
-                }
+                else { PrintHelp(); }
             } 
-            else {
-                PrintHelp();
-            }
+            else { PrintHelp(); }
         }
 
+        /// <summary>
+        /// Uses Parallel.For to efficiently generate random numbers and check if they are prime.
+        /// If prime, it is printed to output, if not it is ignored.
+        /// </summary>
+        /// <param name="amount">Number of prime numbers to generate.</param>
+        /// <param name="bitsParam">Number of bits of each individual prime number.</param>
         public static void PrimeNumberGenerator(int amount, int bitsParam) {
+            RandomNumberGenerator rng = RandomNumberGenerator.Create();
             Parallel.For(0, amount, 
-                        i => { BigInteger num = GenerateRandomNumber(bitsParam);
-                                      while (!CheckIfPrime(num, bitsParam)) { num = GenerateRandomNumber(bitsParam); }
-                                      Interlocked.Increment(ref primesGenerated);
-                                      Console.WriteLine("{0}: {1}\n", primesGenerated, num); //something causing primes out of order
-                                    });
+                        i => { BigInteger num = GenerateRandomNumber(bitsParam, rng);
+                        while (!CheckIfPrime(num, bitsParam)) { num = GenerateRandomNumber(bitsParam, rng); }
+                        lock (lockObject) {
+                            Interlocked.Increment(ref primesGenerated);
+                            Console.WriteLine("{0}: {1}\n", primesGenerated, num);
+                        } });
+            rng.Dispose();
         }
 
+        /// <summary>
+        /// Checks first thousand primes and calls Miller-Rabin Primality Test to check if a number is prime.
+        /// </summary>
+        /// <param name="number">Number to check primality for.</param>
+        /// <param name="numBits">Number of bits of the number.</param>
+        /// <returns>True if prime, false if not.</returns>
         public static Boolean CheckIfPrime(BigInteger number, int numBits) {
+            // First 1000 primes check. If a number is divisible by any of these primes, it is not a prime number.
+            // Do this only for bit sizes of 1024 or greater, as any smaller will reduce efficiency.
             if (numBits >= 1024) {
                 foreach (int prime in firstThousandPrimes) {
                     if (number % prime == 0) {
@@ -107,6 +150,8 @@ namespace PrimeGen
                 }
             }
 
+            // Call the Miller-Rabin Primality Test if conditions pass.
+            // Number must be greater than 3 and odd.
             if (number > 3 && number % 2 != 0) {
                 if (number.IsProbablyPrime()) {
                     return true;
@@ -116,17 +161,26 @@ namespace PrimeGen
             return false;
         }
 
-        public static BigInteger GenerateRandomNumber(int bits) {
+        /// <summary>
+        /// Generates a random number of the given bit length.
+        /// </summary>
+        /// <param name="bits">Bit length of the number to be generated.</param>
+        /// <param name="rng">Random number generator to be reused.</param>
+        /// <returns>BigInteger of specified bit length.</returns>
+        public static BigInteger GenerateRandomNumber(int bits, RandomNumberGenerator rng) {
             byte[] byteArr = new byte[bits / 8];
-
-            RandomNumberGenerator rng = RandomNumberGenerator.Create();
             rng.GetBytes(byteArr);
             BigInteger generated = new BigInteger(byteArr, true, false);
-            rng.Dispose();
-
+            
             return generated;
         }
 
+        /// <summary>
+        /// C# Version of the Miller-Rabin Primality Test.
+        /// </summary>
+        /// <param name="value">Odd BigInteger to be tested for primality.</param>
+        /// <param name="k">Number of rounds of testing to perform.</param>
+        /// <returns>False if value is composite, true otherwise.</returns>
         static Boolean IsProbablyPrime(this BigInteger value, int k = 10) {
             BigInteger d = value - 1;
             int r = 0;
@@ -134,13 +188,16 @@ namespace PrimeGen
                 d /= 2;
                 r++;
             }
-            Random rand = new Random();
 
+            Random rand = new Random();
             for (int i = 0; i < k; i++) {
+                // Pick random number between 2 and value - 2.
                 BigInteger a = BigInteger.Remainder(new BigInteger(rand.Next()), value - 3) + 2;
                 if (a < 2) { a += 2; }
+
                 BigInteger x = BigInteger.ModPow(a, d, value);
                 if (x == 1 || x == value - 1) { continue; }
+
                 for (int j = 0; j < r - 1; j++) {
                     x = BigInteger.ModPow(x, 2, value);
                     if (x == value - 1) { break; }
@@ -151,13 +208,14 @@ namespace PrimeGen
             return true;
         }
 
+        /// <summary>
+        /// Prints help menu message. Called upon incorrect input.
+        /// </summary>
         public static void PrintHelp() {
             Console.WriteLine("Usage: dotnet run <bits> <count=1>");
             Console.WriteLine("     - bits = the number of bits of the prime number, " +
                 "this must be a multiple of 8, and at least 32 bits");
             Console.WriteLine("     - count = the number of prime numbers to generate, defaults to 1");
         }
-
     }
-
 }
